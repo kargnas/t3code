@@ -35,6 +35,14 @@ export function ComposerInlineControl(props: {
   readonly icon?: ComponentProps<typeof SymbolView>["name"];
   readonly renderIcon?: (size: number) => ReactNode;
   readonly label: string;
+  /**
+   * Secondary value after the label, such as the reasoning level. It never
+   * truncates; the label gives up its width first.
+   */
+  readonly detail?: {
+    readonly icon: ComponentProps<typeof SymbolView>["name"];
+    readonly label: string;
+  } | null;
   readonly maxWidth?: ViewStyle["maxWidth"];
   readonly onPress?: () => void;
   readonly selected?: boolean;
@@ -82,6 +90,19 @@ export function ComposerInlineControl(props: {
       >
         {props.label}
       </Text>
+      {props.detail ? (
+        <View className="shrink-0 flex-row items-center gap-1">
+          <SymbolView
+            name={props.detail.icon}
+            size={Math.round(12 * scale)}
+            tintColorClassName="accent-icon-muted"
+            type="monochrome"
+          />
+          <Text className="text-sm font-t3-medium text-foreground-muted" numberOfLines={1}>
+            {props.detail.label}
+          </Text>
+        </View>
+      ) : null}
       {props.showChevron === false ? null : (
         <SymbolView
           name={props.chevronDirection === "right" ? "chevron.right" : "chevron.down"}

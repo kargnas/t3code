@@ -34,6 +34,7 @@ import {
   resolveEnvironmentMachineKind,
 } from "@t3tools/contracts";
 import { deriveThreadTitleSeed } from "@t3tools/client-runtime/operations";
+import { formatModelSelectionEffort } from "@t3tools/client-runtime/state/thread-execution";
 
 import {
   ComposerEditor,
@@ -447,6 +448,10 @@ export function NewTaskDraftScreen(props: {
   const isImportingContext = flow.draftKey ? contextImports[flow.draftKey] === true : false;
   const isComposerInteractionLocked =
     isIncomingShareTransferPending || flow.submitting || isImportingContext;
+  const reasoningLabel =
+    flow.selectedModel === null
+      ? null
+      : formatModelSelectionEffort(flow.selectedModel, flow.selectedProviderStatus?.models);
   // Hardware keyboard: step to the next machine, from the one a switch in
   // progress is heading to so repeated presses keep advancing.
   const { environments, selectedEnvironmentId, switchEnvironment, switchingToEnvironmentId } = flow;
@@ -1774,6 +1779,9 @@ export function NewTaskDraftScreen(props: {
                           />
                         )}
                         label={flow.selectedModelOption?.label ?? "Choose model"}
+                        detail={
+                          reasoningLabel === null ? null : { icon: "brain", label: reasoningLabel }
+                        }
                         maxWidth="100%"
                         onPress={settingsSheetPresentation.open}
                       />

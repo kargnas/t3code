@@ -96,6 +96,7 @@ import type { RemoteClientConnectionState } from "../../lib/connection";
 import { resolveProviderOptionDescriptors } from "../../lib/providerOptions";
 import { ControlPillMenu } from "../../components/ControlPill";
 import type { ActiveTurnComposerAction } from "@t3tools/client-runtime/state/composer-dispatch";
+import { formatModelSelectionEffort } from "@t3tools/client-runtime/state/thread-execution";
 import type { FollowUpBehavior } from "../../lib/followUpBehavior";
 import {
   resolveComposerSendPresentation,
@@ -672,6 +673,12 @@ export const ThreadComposer = memo(function ThreadComposer(props: ThreadComposer
         option.selection.instanceId === currentModelSelection.instanceId &&
         option.selection.model === currentModelSelection.model,
     ) ?? null;
+  // A level the provider reported shows until the user picks one, as in the settings sheet.
+  const reasoningLabel = formatModelSelectionEffort(
+    currentModelSelection,
+    selectedProviderStatus?.models,
+    props.reportedModelSelection,
+  );
   const providerOptionDescriptors = useMemo(
     () =>
       resolveProviderOptionDescriptors({
@@ -1150,6 +1157,9 @@ export const ThreadComposer = memo(function ThreadComposer(props: ThreadComposer
                           />
                         )}
                         label={currentModelOption?.label ?? currentModelSelection.model}
+                        detail={
+                          reasoningLabel === null ? null : { icon: "brain", label: reasoningLabel }
+                        }
                         maxWidth="100%"
                         onPress={openSettings}
                       />
