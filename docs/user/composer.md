@@ -215,8 +215,7 @@ Provider commands must start the message to run. T3 Code commands such as
 `/model` and `/plan`, and skill mentions, work on any line.
 
 Send `/compact` in an existing conversation to reduce context usage when the
-provider supports it. The context meter also offers compaction. On mobile, the
-meter is the thin line along the top edge of the composer: tap it to see token usage.
+provider supports it. The context meter also offers compaction.
 
 ## Goals
 

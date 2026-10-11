@@ -10,7 +10,7 @@ const OVERLOADED_PERCENTAGE = 90;
 export const COMPACT_CONTEXT_ACTION_ID = "compact-context";
 
 /**
- * What the composer's context line draws and what its menu lists. Native menus
+ * What the composer's context meter draws and what its menu lists. Native menus
  * on both platforms render only action rows, so the usage numbers ride in a
  * disabled row under the menu title.
  */

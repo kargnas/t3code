@@ -103,7 +103,7 @@ import {
   type ComposerSendPresentation,
 } from "./composerSendPresentation";
 import { ComposerCommandPopover } from "./ComposerCommandPopover";
-import { ComposerContextWindowLine } from "./ComposerContextWindowLine";
+import { ComposerContextWindowMeter } from "./ComposerContextWindowMeter";
 import { ComposerPopoverAnchor } from "./ComposerPopoverAnchor";
 import { ComposerQueuedEditAttachments } from "./ComposerQueuedEdit";
 import { useComposerCommandMenu } from "./use-composer-command-menu";
@@ -456,6 +456,15 @@ export const ThreadComposer = memo(function ThreadComposer(props: ThreadComposer
     : props.activeThreadBusy || !props.hasCompactableConversation
       ? "Compacting is unavailable right now"
       : null;
+  // Sits before the send controls in whichever layout is showing, so only one
+  // copy is mounted and subscribed to the thread's usage at a time.
+  const contextWindowMeter = (
+    <ComposerContextWindowMeter
+      compactSupported={compactSupported}
+      compactDisabledReason={compactDisabledReason}
+      onCompact={props.onCompactContext}
+    />
+  );
   const composerOwnerKey = scopedThreadKey(props.environmentId, props.selectedThread.id);
   // Content lives under the edit's own draft while a queued message is open;
   // the owner key still identifies this composer for settings and dictation.
@@ -830,11 +839,6 @@ export const ThreadComposer = memo(function ThreadComposer(props: ThreadComposer
           </Pressable>
         ) : null}
 
-        <ComposerContextWindowLine
-          compactSupported={compactSupported}
-          compactDisabledReason={compactDisabledReason}
-          onCompact={props.onCompactContext}
-        />
         <ComposerSurface
           style={
             isExpanded
@@ -1071,6 +1075,7 @@ export const ThreadComposer = memo(function ThreadComposer(props: ThreadComposer
             ) : null}
             {!isExpanded ? (
               <View className="flex-row items-center">
+                {contextWindowMeter}
                 <ComposerDictationStartAction
                   state={voiceInput.state}
                   isAvailable={voiceInput.isAvailable}
@@ -1167,6 +1172,7 @@ export const ThreadComposer = memo(function ThreadComposer(props: ThreadComposer
                   </View>
                 )}
                 <View className="shrink-0 flex-row items-center">
+                  {isExpanded ? contextWindowMeter : null}
                   <ComposerDictationPrimaryAction
                     state={voiceInput.state}
                     presentation={voicePresentation}
