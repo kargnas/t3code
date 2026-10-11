@@ -102,6 +102,7 @@ import {
   type ComposerSendPresentation,
 } from "./composerSendPresentation";
 import { ComposerCommandPopover } from "./ComposerCommandPopover";
+import { ComposerContextWindowLine } from "./ComposerContextWindowLine";
 import { ComposerPopoverAnchor } from "./ComposerPopoverAnchor";
 import { ComposerQueuedEditAttachments } from "./ComposerQueuedEdit";
 import { useComposerCommandMenu } from "./use-composer-command-menu";
@@ -191,6 +192,8 @@ export interface ThreadComposerProps {
   readonly onRemoveDraftImage: (imageId: string) => void;
   readonly onStopThread: () => void;
   readonly onSendMessage: (followUp?: ActiveTurnComposerAction) => Promise<MessageId | null>;
+  /** Sends `/compact` on its own, leaving the draft in place. */
+  readonly onCompactContext: () => void;
   /** `/usage-limits` resolves locally; the host decides where the report shows. Null clears it. */
   readonly onShowUsageLimits: (report: UsageLimitsReport | null) => void;
   /**
@@ -444,6 +447,14 @@ export const ThreadComposer = memo(function ThreadComposer(props: ThreadComposer
       ) ?? null
     );
   }, [props.serverConfig, props.selectedThread.modelSelection.instanceId]);
+  // Offered for the same provider commands as /compact in the slash menu.
+  const compactSupported =
+    selectedProviderStatus?.slashCommands.some((command) => command.name === "compact") ?? false;
+  const compactDisabledReason = !props.canOperateThread
+    ? "This connection cannot change threads."
+    : props.activeThreadBusy || !props.hasCompactableConversation
+      ? "Compacting is unavailable right now"
+      : null;
   const composerOwnerKey = scopedThreadKey(props.environmentId, props.selectedThread.id);
   // Content lives under the edit's own draft while a queued message is open;
   // the owner key still identifies this composer for settings and dictation.
@@ -812,6 +823,11 @@ export const ThreadComposer = memo(function ThreadComposer(props: ThreadComposer
           </Pressable>
         ) : null}
 
+        <ComposerContextWindowLine
+          compactSupported={compactSupported}
+          compactDisabledReason={compactDisabledReason}
+          onCompact={props.onCompactContext}
+        />
         <ComposerSurface
           style={
             isExpanded

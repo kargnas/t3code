@@ -226,6 +226,7 @@ export interface ThreadDetailScreenProps {
   readonly onRemoveDraftImage: (imageId: string) => void;
   readonly onStopThread: () => void;
   readonly onSendMessage: (followUp?: ActiveTurnComposerAction) => Promise<MessageId | null>;
+  readonly onCompactContext: () => void;
   readonly onReconnectEnvironment: () => void;
   /** Whether the model picker may offer providers other than this thread's. */
   readonly canSwitchThreadProvider: boolean;
@@ -1475,6 +1476,7 @@ export const ThreadDetailScreen = memo(function ThreadDetailScreen(props: Thread
                         onRemoveDraftImage={props.onRemoveDraftImage}
                         onStopThread={props.onStopThread}
                         onSendMessage={handleSendMessage}
+                        onCompactContext={props.onCompactContext}
                         onShowUsageLimits={showUsageLimits}
                         canSwitchProvider={props.canSwitchThreadProvider}
                         onUpdateModelSelection={props.onUpdateThreadModelSelection}

@@ -176,3 +176,14 @@ export function formatContextWindowTokens(value: number | null): string {
   }
   return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, "")}m`;
 }
+
+/** Keeps one decimal below 10% so an early, nearly empty window still reads as non-zero. */
+export function formatContextWindowPercentage(value: number | null): string | null {
+  if (value === null || !Number.isFinite(value)) {
+    return null;
+  }
+  if (value < 10) {
+    return `${value.toFixed(1).replace(/\.0$/, "")}%`;
+  }
+  return `${Math.round(value)}%`;
+}

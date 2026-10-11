@@ -48,7 +48,7 @@ Set **Auto-compact after** in the Claude provider settings to an integer between
 300,000 tokens. This changes when compaction happens, not the model's context
 window. Leave it empty for Claude Code's default.
 
-You can also send `/compact` in an existing conversation. Web and desktop offer
+You can also send `/compact` in an existing conversation, or choose
 **Compact context** from the context meter. When you return to a large thread
 after Claude's prompt cache expires, a **Compact** chip with the thread's token count shows
 next to the send button. While it is on, Enter summarizes the history first, then

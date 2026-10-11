@@ -4,7 +4,7 @@ import {
   deriveLatestContextWindowSnapshot,
   formatContextWindowTokens,
   latestProviderTurnTokenUsage,
-} from "./contextWindow";
+} from "./contextWindow.ts";
 
 describe("V2 context window presentation", () => {
   it("uses retained compaction token data when available", () => {

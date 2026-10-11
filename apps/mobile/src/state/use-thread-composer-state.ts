@@ -755,6 +755,52 @@ export function useThreadComposerState() {
     ],
   );
 
+  // Sends `/compact` by itself, as web's context meter does, so whatever the
+  // user is typing stays in the draft. The draft's pending model settings ride
+  // along, as they would on a normal send.
+  const onCompactContext = useCallback(() => {
+    if (!selectedThreadShell || selectedThreadCreation !== null) return;
+    if (
+      selectedEnvironmentRuntime?.connectionState === "connected" &&
+      !readEnvironmentScope(selectedThreadShell.environmentId, AuthOrchestrationOperateScope)
+    )
+      return;
+    const thread = selectedThreadShell;
+    const threadKey = scopedThreadKey(thread.environmentId, thread.id);
+    const draft = getComposerDraftSnapshot(threadKey);
+    const modelSelection = draft.modelSelection ?? thread.modelSelection;
+    const provider = selectedEnvironmentRuntime?.serverConfig?.providers.find(
+      (entry) => entry.instanceId === modelSelection.instanceId,
+    );
+    const metadata = makeQueuedMessageMetadata();
+    clearThreadComposerError(threadKey);
+    void enqueueThreadOutboxMessage({
+      environmentId: thread.environmentId,
+      threadId: thread.id,
+      messageId: MessageId.make(metadata.messageId),
+      commandId: CommandId.make(metadata.commandId),
+      text: "/compact",
+      attachments: [],
+      modelSelection,
+      runtimeMode: draft.runtimeMode ?? thread.runtimeMode,
+      interactionMode: resolveProviderInteractionMode(
+        provider,
+        draft.interactionMode ?? thread.interactionMode,
+      ),
+      createdAt: metadata.createdAt,
+    }).catch((error: unknown) => {
+      setThreadComposerError(
+        threadKey,
+        error instanceof Error ? error.message : "Failed to compact context.",
+      );
+    });
+  }, [
+    selectedEnvironmentRuntime?.connectionState,
+    selectedEnvironmentRuntime?.serverConfig,
+    selectedThreadCreation,
+    selectedThreadShell,
+  ]);
+
   const onChangeDraftMessage = useCallback(
     (value: string) => {
       if (!selectedThreadShell) {
@@ -1099,6 +1145,7 @@ export function useThreadComposerState() {
     onNativePasteText,
     onRemoveDraftImage,
     onSendMessage,
+    onCompactContext,
     onUpdateModelSelection,
     onUpdateRuntimeMode,
     onUpdateInteractionMode,
