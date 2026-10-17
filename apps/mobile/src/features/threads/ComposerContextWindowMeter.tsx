@@ -7,8 +7,8 @@ import { View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { withUniwind } from "uniwind";
 
-import { ControlPillMenu } from "../../components/ControlPill";
-import { useAndroidControlSizing } from "../../components/useAndroidControlSizing";
+import { Menu } from "../../components/ui/Menu";
+import { useAndroidControlSizing } from "../../components/ui/useAndroidControlSizing";
 import {
   useSelectedThreadProjection,
   useSelectedThreadVisibleTurnItems,
@@ -71,7 +71,7 @@ export const ComposerContextWindowMeter = memo(function ComposerContextWindowMet
 
   const ringSize = Math.round(20 * scale);
   return (
-    <ControlPillMenu
+    <Menu
       accessible
       accessibilityRole="button"
       accessibilityLabel={presentation.accessibilityLabel}
@@ -119,6 +119,6 @@ export const ComposerContextWindowMeter = memo(function ComposerContextWindowMet
           />
         </Svg>
       </View>
-    </ControlPillMenu>
+    </Menu>
   );
 });
