@@ -779,7 +779,9 @@ export function HomeScreen(props: HomeScreenProps) {
           onMoveThread={handleMoveThread}
           onSwipeableClose={handleSwipeableClose}
           onSwipeableWillOpen={handleSwipeableWillOpen}
-          simultaneousSwipeGesture={homeScrollGesture}
+          // Only iPad trackpads need the list to pan with a row swipe. On Android the list then
+          // scrolls mid-swipe, and its scroll gate cancels the swipe.
+          simultaneousSwipeGesture={Platform.OS === "ios" ? homeScrollGesture : undefined}
           activationKey={item.key}
         />
       );
