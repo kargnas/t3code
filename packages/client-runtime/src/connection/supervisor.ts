@@ -521,7 +521,13 @@ export const make = Effect.fn("EnvironmentSupervisor.make")(function* (
         case "BetterRouteAvailable":
           break;
         case "Wakeup":
-          if (next.reason === "application-active-reconnect") {
+          // Android blocks a background app's network seconds after it leaves
+          // the foreground, so setup that ran meanwhile can sit on requests
+          // that only end at their timeouts. Any mobile return starts over.
+          if (
+            next.reason === "application-active-reconnect" ||
+            next.reason === "application-active-probe"
+          ) {
             return true;
           }
           if (next.reason === "credentials-changed" && usesRelay) {

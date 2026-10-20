@@ -32,7 +32,9 @@ A saved environment holds an ordered list of routes, and the
 [driver](../../packages/client-runtime/src/connection/driver.ts) connects over
 the first that works. Each direct route is first checked with the public
 descriptor, so a saved LAN address that a different machine answers on another
-network receives no credential. That check is not proof of a working route:
+network receives no credential. A route still silent shortly after a later route
+is ready waits behind it, so a LAN address seen from cellular does not hold every
+connection for the whole check. That check is not proof of a working route:
 when every route stays silent, each is still tried. A route that fails to
 connect, including a blocked one such as a signed-out T3 Connect, moves on to
 the next; only an incompatible server stops the walk, because it is the same
