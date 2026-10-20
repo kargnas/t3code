@@ -627,16 +627,19 @@ export const ThreadComposer = function ThreadComposer(props: ThreadComposerProps
         option.selection.instanceId === currentModelSelection.instanceId &&
         option.selection.model === currentModelSelection.model,
     ) ?? null;
+  const providerOptionDescriptors = resolveProviderOptionDescriptors({
+    capabilities: currentModelOption?.capabilities,
+    selections: currentModelSelection.options,
+  });
   // A level the provider reported shows until the user picks one, as in the settings sheet.
+  // Keep it below the model-option derivation: placed inside it, the React Compiler stops
+  // memoizing threadProviderGroups and providerOptionDescriptors, settingsRouteSession changes
+  // on every render, and the present effect below loops while the settings sheet is open.
   const reasoningLabel = formatModelSelectionEffort(
     currentModelSelection,
     selectedProviderStatus?.models,
     props.reportedModelSelection,
   );
-  const providerOptionDescriptors = resolveProviderOptionDescriptors({
-    capabilities: currentModelOption?.capabilities,
-    selections: currentModelSelection.options,
-  });
   const settingsOwnerId = composerOwnerKey;
   const settingsRouteSession = {
     ownerId: settingsOwnerId,
