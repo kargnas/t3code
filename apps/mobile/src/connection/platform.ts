@@ -128,12 +128,22 @@ const layerWakeups = Wakeups.layer({
         Effect.acquireRelease(
           Effect.sync(() => {
             let backgroundedAtMs = AppState.currentState === "background" ? Date.now() : null;
+            // React Native also reports "active" for an app that never left the
+            // foreground, as Android does at launch. A wakeup restarts connection
+            // setup, so only a real return sends one.
+            let away = backgroundedAtMs !== null || AppState.currentState === "inactive";
             return AppState.addEventListener("change", (state) => {
               if (state === "background") {
                 backgroundedAtMs = Date.now();
+                away = true;
                 return;
               }
-              if (state === "active") {
+              if (state === "inactive") {
+                away = true;
+                return;
+              }
+              if (state === "active" && away) {
+                away = false;
                 Queue.offerUnsafe(
                   queue,
                   mobileApplicationActiveWakeup(backgroundedAtMs, Date.now()),

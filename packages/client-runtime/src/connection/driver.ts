@@ -35,6 +35,11 @@ export interface EnvironmentConnectionLease {
 export type RouteCheck = "answered" | "silent" | "unchecked";
 
 const ROUTE_CHECK_TIMEOUT_MS = 2_500;
+// Once a later route is ready, an earlier route that has not answered gets this
+// long before it is deferred. A reachable LAN answers well within it, while a LAN
+// address seen from cellular would otherwise cost the whole check timeout on
+// every reconnect. The supervisor moves back to the earlier route once it answers.
+const UNANSWERED_ROUTE_GRACE_MS = 500;
 
 export class ConnectionDriver extends Context.Service<
   ConnectionDriver,
@@ -83,9 +88,26 @@ export const connectOverRoutes = Effect.fn("ConnectionDriver.connectOverRoutes")
     }
     return result;
   });
+  const laterRouteReady = (index: number) => {
+    const later = checks
+      .slice(index + 1)
+      .map((check) =>
+        Fiber.join(check).pipe(
+          Effect.flatMap((result) => (result === "silent" ? Effect.never : Effect.void)),
+        ),
+      );
+    return later.length === 0
+      ? Effect.never
+      : Effect.raceAll(later).pipe(Effect.andThen(Effect.sleep(UNANSWERED_ROUTE_GRACE_MS)));
+  };
   const silent: Array<ConnectionRoute> = [];
   for (const [index, route] of routes.entries()) {
-    const check = checks.length === 0 ? "unchecked" : yield* Fiber.join(checks[index]!);
+    const check =
+      checks.length === 0
+        ? "unchecked"
+        : yield* Fiber.join(checks[index]!).pipe(
+            Effect.raceFirst(laterRouteReady(index).pipe(Effect.as<RouteCheck>("silent"))),
+          );
     if (check === "silent") {
       silent.push(route);
       continue;
