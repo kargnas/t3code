@@ -44,12 +44,13 @@ export const ComposerContextWindowMeter = memo(function ComposerContextWindowMet
   const usage = useMemo(() => {
     if (thread === null) return null;
     const { projection } = thread;
+    const activeProviderThread = projection.providerThreads.find(
+      (providerThread) => providerThread.id === projection.thread.activeProviderThreadId,
+    );
     return deriveLatestContextWindowSnapshot(
       turnItems,
-      latestProviderTurnTokenUsage(projection.providerTurns),
-      projection.providerThreads.find(
-        (providerThread) => providerThread.id === projection.thread.activeProviderThreadId,
-      ),
+      latestProviderTurnTokenUsage(projection.providerTurns, projection, activeProviderThread),
+      activeProviderThread,
     );
   }, [thread, turnItems]);
   const usedTokens = usage?.usedTokens ?? null;
