@@ -28,6 +28,12 @@ a few seconds after it leaves the foreground, so setup that ran meanwhile can
 wait out its request timeouts. Desktop and web focus leave an in-flight attempt
 alone.
 
+Leaving the Android app with an environment connected starts a foreground
+service that exempts the process from that block for a bounded hold, so the
+socket survives an app switch and a return during the hold probes the kept
+session instead of replacing it. The hold is bounded because the socket pings
+every few seconds, which keeps a cellular radio awake. iOS has no equivalent.
+
 The [registry](../../packages/client-runtime/src/connection/registry.ts) scopes
 connections by environment. An involuntary disconnect retains the registration
 and cached data. Explicit removal closes the scope and clears credentials,

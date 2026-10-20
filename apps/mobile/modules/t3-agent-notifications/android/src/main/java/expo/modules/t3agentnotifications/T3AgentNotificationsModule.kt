@@ -34,6 +34,16 @@ class T3AgentNotificationsModule : Module() {
       AgentNotifications.setThreadOnScreen(path)
     }
 
+    Function("holdConnection") { title: String, text: String, holdMs: Double ->
+      appContext.reactContext?.let {
+        ConnectionHoldService.start(it, title, text, holdMs.toLong())
+      } ?: false
+    }
+
+    Function("releaseConnection") {
+      appContext.reactContext?.let { ConnectionHoldService.stop(it) }
+    }
+
     Function("openLiveUpdateSettings") {
       val context = appContext.reactContext
       if (context == null || Build.VERSION.SDK_INT < 36) {

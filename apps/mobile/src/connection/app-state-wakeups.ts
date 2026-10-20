@@ -10,7 +10,11 @@ export type MobileApplicationActiveWakeup = Extract<
 export function mobileApplicationActiveWakeup(
   backgroundedAtMs: number | null,
   activeAtMs: number,
+  heldUntilMs: number | null,
 ): MobileApplicationActiveWakeup {
+  // A held connection kept its socket through the background, so confirm it
+  // instead of replacing a session that still works.
+  if (heldUntilMs !== null && activeAtMs < heldUntilMs) return "application-active-probe";
   return backgroundedAtMs !== null &&
     activeAtMs - backgroundedAtMs >= MOBILE_BACKGROUND_RECONNECT_AFTER_MS
     ? "application-active-reconnect"

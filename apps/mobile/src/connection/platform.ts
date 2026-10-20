@@ -28,6 +28,7 @@ import { clearThreadOutboxEnvironment } from "../state/thread-outbox-removal";
 import { clearComposerDraftsEnvironment } from "../state/use-composer-drafts";
 import { clearThreadComposerErrorsForEnvironment } from "../state/thread-composer-error";
 import { mobileApplicationActiveWakeup } from "./app-state-wakeups";
+import { holdConnection, releaseConnection } from "./background-hold";
 import * as ConnectionStorage from "./storage";
 
 function networkStatus(state: Network.NetworkState): "unknown" | "offline" | "online" {
@@ -136,6 +137,7 @@ const layerWakeups = Wakeups.layer({
               if (state === "background") {
                 backgroundedAtMs = Date.now();
                 away = true;
+                holdConnection(backgroundedAtMs);
                 return;
               }
               if (state === "inactive") {
@@ -146,7 +148,7 @@ const layerWakeups = Wakeups.layer({
                 away = false;
                 Queue.offerUnsafe(
                   queue,
-                  mobileApplicationActiveWakeup(backgroundedAtMs, Date.now()),
+                  mobileApplicationActiveWakeup(backgroundedAtMs, Date.now(), releaseConnection()),
                 );
                 backgroundedAtMs = null;
               }
