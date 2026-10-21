@@ -475,6 +475,8 @@ const NewTaskSheetStack = createNativeStackNavigator({
       screen: NewTaskDraftRouteScreen,
       linking: "draft",
       options: {
+        // The composer's bottom anchor needs the same viewport on the first and later layouts.
+        headerShown: Platform.OS !== "android",
         headerBackVisible: false,
         title: "",
       },

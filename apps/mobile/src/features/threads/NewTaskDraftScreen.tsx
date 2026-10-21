@@ -1341,14 +1341,11 @@ export function NewTaskDraftScreen(props: {
     return (
       <View className="flex-1 bg-sheet" collapsable={false}>
         {Platform.OS === "android" ? (
-          <>
-            <NativeStackScreenOptions options={{ headerShown: false }} />
-            <AndroidScreenHeader
-              title="New thread"
-              hideBottomBorder
-              onBack={() => navigation.goBack()}
-            />
-          </>
+          <AndroidScreenHeader
+            title="New thread"
+            hideBottomBorder
+            onBack={() => navigation.goBack()}
+          />
         ) : (
           <NativeStackScreenOptions options={{ title: "Loading task" }} />
         )}
@@ -1808,7 +1805,6 @@ export function NewTaskDraftScreen(props: {
   if (isAndroid) {
     return (
       <View className="flex-1 bg-sheet" collapsable={false}>
-        <NativeStackScreenOptions options={{ headerShown: false }} />
         <SheetHeader
           title="New thread"
           onCancel={closeNewTask}
