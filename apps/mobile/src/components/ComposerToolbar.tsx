@@ -32,8 +32,9 @@ export function ComposerInlineControl(props: {
   readonly icon?: ComponentProps<typeof SymbolView>["name"];
   readonly renderIcon?: (size: number) => ReactNode;
   readonly label: string;
+  /** Shown even with iconOnly, so the reasoning level stays visible in the one-row composer. */
   readonly suffix?: ReactNode;
-  /** Show only the icon and chevron; the label still names the control for accessibility. */
+  /** Hide the label; it still names the control for accessibility. */
   readonly iconOnly?: boolean;
   readonly maxWidth?: ViewStyle["maxWidth"];
   readonly onPress?: () => void;
@@ -98,9 +99,7 @@ export function ComposerInlineControl(props: {
             </Text>
           </Animated.View>
         )}
-        {!props.iconOnly && props.suffix ? (
-          <View className="min-w-0 shrink">{props.suffix}</View>
-        ) : null}
+        {props.suffix ? <View className="min-w-0 shrink">{props.suffix}</View> : null}
         {props.showChevron === false ? null : (
           <SymbolView
             name={props.chevronDirection === "right" ? "chevron.right" : "chevron.down"}
