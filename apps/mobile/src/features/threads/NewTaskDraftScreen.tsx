@@ -1212,6 +1212,9 @@ export function NewTaskDraftScreen(props: {
         canStopThread={false}
         queuedRunEdit={null}
         composerDraftKey={flow.draftKey}
+        isRewinding={false}
+        rewindMessageIds={new Set()}
+        onRewindMessage={async () => false}
         followUpBehavior="queue"
         canSteerActiveTurn={false}
         isSavingQueuedEdit={false}

@@ -525,9 +525,12 @@ export const ThreadComposer = function ThreadComposer(props: ThreadComposerProps
   // Offered for the same provider commands as /compact in the slash menu.
   const compactSupported =
     selectedProviderStatus?.slashCommands.some((command) => command.name === "compact") ?? false;
+  // A rewind locks interaction too: /compact sent then would race the rollback.
   const compactDisabledReason = !props.canOperateThread
     ? "This connection cannot change threads."
-    : props.activeThreadBusy || !props.hasCompactableConversation
+    : props.activeThreadBusy ||
+        props.interactionLocked === true ||
+        !props.hasCompactableConversation
       ? "Compacting is unavailable right now"
       : null;
   // Sits before the send controls in the composer row, which stays mounted in both its

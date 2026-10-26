@@ -1,3 +1,4 @@
+import { useMessageRewindConfirmation } from "./MessageRewindDialog";
 import { useSidebarWorkspaceTabs } from "../workspace/useSystemWorkspaceTabBar";
 import { useWorkspaceTabs } from "../workspace/WorkspaceTabsContext";
 import {
@@ -248,6 +249,12 @@ export interface ThreadDetailScreenProps {
   readonly canStopThread: boolean;
   readonly queuedRunEdit: QueuedRunEdit | null;
   readonly composerDraftKey: string | null;
+  readonly isRewinding: boolean;
+  readonly rewindMessageIds: ReadonlySet<MessageId>;
+  readonly onRewindMessage: (
+    messageId: MessageId,
+    confirm: () => Promise<boolean | null>,
+  ) => Promise<boolean>;
   readonly followUpBehavior: FollowUpBehavior;
   readonly canSteerActiveTurn: boolean;
   readonly isSavingQueuedEdit: boolean;
@@ -582,6 +589,7 @@ export const ThreadDetailScreen = function ThreadDetailScreen(props: ThreadDetai
   const controlInsets = deriveBottomControlInsets(nativeMetrics);
   const agentLabel = `${props.selectedThread.modelSelection.instanceId} agent`;
   const selectedThreadKey = scopedThreadKey(props.environmentId, props.selectedThread.id);
+  const rewindConfirmation = useMessageRewindConfirmation(selectedThreadKey);
   const childThreadInputs = useChildThreadInputs({
     environmentId: props.environmentId,
     threadId: props.selectedThread.id,
@@ -1490,7 +1498,21 @@ export const ThreadDetailScreen = function ThreadDetailScreen(props: ThreadDetai
               dispatchingMessageId={props.dispatchingMessageId}
               // A native subagent has no composer to edit a pending message in;
               // Cancel on the edit banner would discard it.
-              onEditPendingMessage={isProviderSubagent ? null : handleEditPendingMessage}
+              onEditPendingMessage={
+                isProviderSubagent || props.isRewinding ? null : handleEditPendingMessage
+              }
+              rewindMessageIds={isProviderSubagent ? undefined : props.rewindMessageIds}
+              onRewindMessage={async (messageId) => {
+                const key = selectedThreadKey;
+                if (
+                  (await props.onRewindMessage(messageId, rewindConfirmation.confirm)) &&
+                  selectedThreadKeyRef.current === key
+                ) {
+                  const text = getComposerDraftSnapshot(key).text;
+                  composerEditorRef.current?.focus();
+                  composerEditorRef.current?.setSelection({ start: text.length, end: text.length });
+                }
+              }}
               contentPresentation={props.contentPresentation}
               agentLabel={agentLabel}
               threadTitle={props.selectedThread.title}
@@ -1785,14 +1807,16 @@ export const ThreadDetailScreen = function ThreadDetailScreen(props: ThreadDetai
                         projectCwd={props.threadCwd ?? props.projectWorkspaceRoot}
                         // Keep follow-ups in the draft until server creation succeeds, or rejection strands them in the outbox.
                         sendBlockedReason={
-                          props.draftMode
-                            ? props.draftMode.sendBlockedReason
-                            : props.creationState?.kind === "preparing" &&
-                                !props.creationState.serverOwned
-                              ? "Starting the task…"
-                              : null
+                          props.isRewinding
+                            ? "Rewinding…"
+                            : props.draftMode
+                              ? props.draftMode.sendBlockedReason
+                              : props.creationState?.kind === "preparing" &&
+                                  !props.creationState.serverOwned
+                                ? "Starting the task…"
+                                : null
                         }
-                        interactionLocked={props.draftMode?.interactionLocked}
+                        interactionLocked={props.isRewinding || props.draftMode?.interactionLocked}
                         draftKey={props.composerDraftKey ?? undefined}
                         followUpBehavior={
                           props.activePendingApprovals.length > 0 &&
@@ -1838,6 +1862,7 @@ export const ThreadDetailScreen = function ThreadDetailScreen(props: ThreadDetai
           </ComposerPopoverHost>
         </KeyboardStickyView>
       ) : null}
+      {rewindConfirmation.dialog}
     </View>
   );
 };
