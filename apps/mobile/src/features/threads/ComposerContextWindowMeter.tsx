@@ -26,12 +26,9 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 const ThemedCircle = withUniwind(Circle);
 
 /**
- * Context window usage as a ring beside the composer's send controls, matching
- * the web meter. Tapping it opens the numbers and a compact action in the
- * platform's native menu. It reads the selected thread's projection itself so
- * streamed updates re-render this ring instead of the whole composer; the
- * selection holds that subscription back until a queued thread exists on the
- * server.
+ * Reads the selected thread's projection itself, so streamed updates re-render this ring
+ * instead of the whole composer. The selection holds that subscription back until a
+ * queued thread exists on the server.
  */
 export const ComposerContextWindowMeter = memo(function ComposerContextWindowMeter(props: {
   readonly compactSupported: boolean;
